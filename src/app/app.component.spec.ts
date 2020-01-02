@@ -1,12 +1,21 @@
 import { TestBed, async } from '@angular/core/testing';
 import { AppComponent } from './app.component';
+import { TestService } from './test.service';
 
 describe('AppComponent', () => {
   beforeEach(async(() => {
+
+    //@ts-ignore
+    const testServiceSpy = jasmine.createSpyObj('TestService', ['someFunction'], {testProperty:'value from spy constructor'});
+    console.log("spy object property 'testProperty' has value: " + testServiceSpy.testProperty);
+
     TestBed.configureTestingModule({
       declarations: [
         AppComponent
       ],
+      providers: [
+        {provide: TestService, useValue: testServiceSpy}
+      ]
     }).compileComponents();
   }));
 
@@ -16,16 +25,10 @@ describe('AppComponent', () => {
     expect(app).toBeTruthy();
   });
 
-  it(`should have as title 'reproduce-angular-issue33657'`, () => {
+  it(`properties set in createSpyObj should be accessible here`, () => {
     const fixture = TestBed.createComponent(AppComponent);
-    const app = fixture.debugElement.componentInstance;
-    expect(app.title).toEqual('reproduce-angular-issue33657');
-  });
+    const testServiceFromTestBed = TestBed.get(TestService);
 
-  it('should render title', () => {
-    const fixture = TestBed.createComponent(AppComponent);
-    fixture.detectChanges();
-    const compiled = fixture.debugElement.nativeElement;
-    expect(compiled.querySelector('.content span').textContent).toContain('reproduce-angular-issue33657 app is running!');
+    expect(testServiceFromTestBed.testProperty).toBe('value from spy constructor', 'Open up your dev tools and look at the console and you will see that testProperty had a value in the beforeEach');
   });
 });
